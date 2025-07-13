@@ -1,16 +1,16 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DemoController;
+use App\Http\Controllers\PlannerController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 
 //use DemoController Which you have created. Make sure when you use in that controller you only use methods that return Inertia responses or views.
-Route::get('/', [DemoController::class, 'slashView']);
-Route::get("/login", [DemoController::class, 'login']);
-Route::get("/register", [DemoController::class, 'register']);
-Route::get("/dashboard", [DemoController::class, 'dashboard']);
+Route::get('/', [PlannerController::class, 'slashView']);
+Route::get("/login", [PlannerController::class, 'login']);
+Route::get("/register", [PlannerController::class, 'register']);
+Route::get("/dashboard/planner", [PlannerController::class, 'dashboard']);
 
 
 // Never make this mistake!!! You are in web.php, not api.php. So do not use AuthController methods here. AuthController is typically used in api.php for API authentication. This was the first mistake here. 

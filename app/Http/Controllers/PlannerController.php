@@ -6,7 +6,7 @@ use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-class DemoController extends Controller
+class PlannerController extends Controller
 {
     public function slashView()
     {
@@ -22,6 +22,6 @@ class DemoController extends Controller
     }
     public function dashboard()
     {
-        return inertia("Dashboard");
+        return inertia("Planner/Dashboard");
     }
 }

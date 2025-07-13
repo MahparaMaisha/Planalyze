@@ -24,4 +24,8 @@ class PlannerController extends Controller
     {
         return inertia("Planner/Dashboard");
     }
+    public function events()
+    {
+        return inertia("Planner/Events");
+    }
 }

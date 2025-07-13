@@ -1,4 +1,6 @@
-
+import { router } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
+import Layout from '../../Layouts/Layout';
 const Events = () => {
   const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
   const accountDropdownRef = useRef(null);

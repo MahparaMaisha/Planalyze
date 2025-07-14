@@ -68,4 +68,26 @@ class AuthController extends Controller
         $request->user()->tokens()->delete();
         return response()->json(['message' => 'Logged out successfully']);
     }
+    public function editProfile(Request $request){
+        $user = Auth::user();
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ]);
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+
+        $user->save();
+
+        return response()->json(['message' => 'Profile updated successfully', 'user' => $user]);
+    }
+    public function deleteAccount(Request $request)
+    {
+        $user = Auth::user();
+        $user->tokens()->delete();
+        $user->delete();
+
+        return response()->json(['message' => 'Profile deleted successfully']);
+    }
 }

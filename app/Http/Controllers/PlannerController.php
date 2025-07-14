@@ -28,4 +28,8 @@ class PlannerController extends Controller
     {
         return inertia("Planner/Events");
     }
+    public function Account()
+    {
+        return inertia("Planner/Account");
+    }
 }

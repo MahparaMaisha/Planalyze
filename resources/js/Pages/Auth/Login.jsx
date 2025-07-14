@@ -39,9 +39,9 @@ function Login() {
             console.log("User authenticated:", user);
             // router.get("/dashboard", { user });
             if( user.role_id === 2) {
-                router.visit("/dashboard/planner");
+                router.visit("/planner/dashboard");
             } else if (user.role === 1) {
-                router.visit("/dashboard/client");
+                router.visit("/client/dashboard");
             }
 
 

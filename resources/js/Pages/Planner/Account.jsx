@@ -100,11 +100,11 @@ const Account = () => {
 
   return (
     <Layout user={user}>
-      <div className="max-w-2xl mx-auto p-6 bg-white shadow rounded-lg mt-10">
+      <div className="max-w-2xl mx-auto p-6 bg-gray-200/10 shadow rounded-lg mt-10">
         <h1 className="text-2xl font-bold mb-6">Account Information</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-gray-700">Name</label>
+            <label className="block text-gray-500">Name</label>
             <input
               name="name"
               type="text"
@@ -115,7 +115,7 @@ const Account = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700">Email</label>
+            <label className="block text-gray-500">Email</label>
             <input
               name="email"
               type="email"

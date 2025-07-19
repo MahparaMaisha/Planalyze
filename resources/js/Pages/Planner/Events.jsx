@@ -11,8 +11,9 @@ const Events = () => {
     const [description, setDescription] = useState("");
     const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
     const [price, setPrice] = useState("");
-    const [status, setStatus] = useState("active");
+    const [status, setStatus] = useState("draft");
     const [id, setId] = useState(null);
+    const [editMode, setEditMode] = useState(true);
     const token = localStorage.getItem("token");
     useEffect(() => {
         if (!token) {
@@ -83,37 +84,60 @@ const Events = () => {
         const eventData = {
             title,
             description,
-            event_date: date,
-            price,
+            event_date: date.split("T")[0],
+            category: category,
+            price: Number(price),
             status,
         };
 
         try {
-            const response = await fetch(
-                `http://127.0.0.1:8000/api/events/${id}`,
-                {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify(eventData),
+            if (editMode === false) {
+                console.log("Creating new event:", eventData);
+                const response = await fetch(
+                    `http://127.0.0.1:8000/api/events`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`,
+                        },
+                        body: JSON.stringify(eventData),
+                    }
+                );
+
+                if (response.ok) {
+                    window.alert("Event created successfully!");
+                    window.location.reload();
+                } else {
+                    router.visit("/unauthorized");
                 }
-            );
-            if (response.ok) {
-                const newEvent = await response.json();
-                setEvents((prevEvents) => [...prevEvents, newEvent]);
-                setTitle("");
-                setDescription("");
-                setDate(new Date().toISOString().split("T")[0]);
-                setPrice("");
-                setStatus("");
-                document.getElementById(`event_modal_${id}`).close();
-                setId(null);
-                window.alert("Event updated successfully!");
-                window.location.reload();
             } else {
-                router.visit("/unauthorized");
+                const response = await fetch(
+                    `http://127.0.0.1:8000/api/events/${id}`,
+                    {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`,
+                        },
+                        body: JSON.stringify(eventData),
+                    }
+                );
+                if (response.ok) {
+                    const newEvent = await response.json();
+                    // setEvents((prevEvents) => [...prevEvents, newEvent]);
+                    // setTitle("");
+                    // setDescription("");
+                    // setDate(new Date().toISOString().split("T")[0]);
+                    // setPrice("");
+                    // setStatus("");
+                    // document.getElementById(`event_modal_${id}`).close();
+                    // setId(null);
+                    window.alert("Event updated successfully!");
+                    window.location.reload();
+                } else {
+                    router.visit("/unauthorized");
+                }
             }
         } catch (error) {
             console.log("Error updating event:", error);
@@ -155,7 +179,127 @@ const Events = () => {
         <>
             <Layout user={user}>
                 <div className="dashboard-container">
-                    <h1 className="text-2xl font-bold">Events</h1>
+                    <div className="dashboard-header flex justify-between items-center p-4 bg-gray-100 border-b">
+                        <div>
+                            <h1 className="text-2xl font-bold">Events</h1>
+                        </div>
+                        <div>
+                            <button
+                                className="btn btn-primary"
+                                onClick={() => {
+                                    setEditMode(false);
+                                    document
+                                        .getElementById(`add_event_modal`)
+                                        .showModal();
+                                }}
+                            >
+                                Add New Event
+                            </button>
+                            <dialog
+                                id={`add_event_modal`}
+                                className="modal modal-bottom sm:modal-middle"
+                            >
+                                <div className="modal-box">
+                                    <fieldset className="fieldset">
+                                        <legend className="fieldset-legend">
+                                            Event Title
+                                        </legend>
+                                        <input
+                                            type="text"
+                                            className="input w-full"
+                                            placeholder="Type here"
+                                            value={title}
+                                            onChange={(e) =>
+                                                setTitle(e.target.value)
+                                            }
+                                        />
+                                    </fieldset>
+                                    <fieldset className="fieldset">
+                                        <legend className="fieldset-legend">
+                                            Event Description
+                                        </legend>
+                                        <textarea
+                                            className="textarea w-full"
+                                            placeholder="Type here"
+                                            value={description}
+                                            onChange={(e) =>
+                                                setDescription(e.target.value)
+                                            }
+                                        />
+                                    </fieldset>
+                                    <fieldset className="fieldset">
+                                        <legend className="fieldset-legend">
+                                            Event Date
+                                        </legend>
+                                        <input
+                                            type="date"
+                                            className="input w-full"
+                                            value={date}
+                                            onChange={(e) =>
+                                                setDate(e.target.value)
+                                            }
+                                        />
+                                    </fieldset>
+                                    <fieldset className="fieldset">
+                                        <legend className="fieldset-legend">
+                                            Event Price
+                                        </legend>
+                                        <input
+                                            type="number"
+                                            className="input w-full"
+                                            placeholder="Type here"
+                                            value={price}
+                                            onChange={(e) =>
+                                                setPrice(e.target.value)
+                                            }
+                                        />
+                                    </fieldset>
+                                    <fieldset className="fieldset">
+                                        <legend className="fieldset-legend">
+                                            Event Status
+                                        </legend>
+                                        <select
+                                            className="select w-full"
+                                            value={status}
+                                            onChange={(e) =>
+                                                setStatus(e.target.value)
+                                            }
+                                        >
+                                            <option value="draft">Draft</option>
+                                            <option value="published">
+                                                Published
+                                            </option>
+                                        </select>
+                                    </fieldset>
+                                    <div className="modal-action">
+                                        <button
+                                            className="btn btn-info text-white"
+                                            onClick={handleSubmit}
+                                        >
+                                            Add Event
+                                        </button>
+                                        <form method="dialog">
+                                            {/* if there is a button in form, it will close the modal */}
+                                            <button
+                                                className="btn"
+                                                onClick={() => {
+                                                    setTitle("");
+                                                    setDescription("");
+                                                    setDate("");
+                                                    setPrice("");
+                                                    setStatus("draft");
+                                                    setId(null);
+                                                    setEditMode(true);
+                                                }}
+                                            >
+                                                Close
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </dialog>
+                        </div>
+                    </div>
                     {/* Dashboard content goes here */}
                     <div className="events-list mt-4">
                         {events.length > 0 ? (
@@ -203,6 +347,75 @@ const Events = () => {
                                         >
                                             View Details
                                         </button>
+                                        {/* Open the modal using document.getElementById('ID').showModal() method */}
+                                        <button
+                                            className="mt-2 ml-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer"
+                                            onClick={() =>
+                                                document
+                                                    .getElementById(
+                                                        `review_modal_${event.id}`
+                                                    )
+                                                    .showModal()
+                                            }
+                                        >
+                                            See Reviews
+                                        </button>
+                                        <dialog
+                                            id={`review_modal_${event.id}`}
+                                            className="modal modal-bottom sm:modal-middle"
+                                        >
+                                            <div className="modal-box max-h-[80vh] overflow-y-auto">
+                                                <h3 className="font-bold text-lg mb-4">
+                                                    Client Reviews
+                                                </h3>
+
+                                                {event.reviews.length === 0 ? (
+                                                    <p className="text-gray-500">
+                                                        No reviews yet.
+                                                    </p>
+                                                ) : (
+                                                    <div className="space-y-4">
+                                                        {event.reviews.map(
+                                                            (review, idx) => (
+                                                                <div
+                                                                    key={idx}
+                                                                    className="border rounded-xl p-4 bg-gray-100 shadow"
+                                                                >
+                                                                    <div className="flex justify-between items-center">
+                                                                        <p className="font-semibold">
+                                                                            {review
+                                                                                .user
+                                                                                ?.name ??
+                                                                                "Unknown User"}
+                                                                        </p>
+                                                                        <span className="text-yellow-500 font-medium">
+                                                                            ⭐{" "}
+                                                                            {
+                                                                                review.rating
+                                                                            }
+                                                                            /5
+                                                                        </span>
+                                                                    </div>
+                                                                    <p className="mt-2 text-gray-700">
+                                                                        {
+                                                                            review.comment
+                                                                        }
+                                                                    </p>
+                                                                </div>
+                                                            )
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                <div className="modal-action">
+                                                    <form method="dialog">
+                                                        <button className="btn btn-primary">
+                                                            Close
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </dialog>
                                         <dialog
                                             id={`event_modal_${event.id}`}
                                             className="modal modal-bottom sm:modal-middle"
@@ -316,7 +529,7 @@ const Events = () => {
                                                                 setDate("");
                                                                 setPrice("");
                                                                 setStatus(
-                                                                    "active"
+                                                                    "draft"
                                                                 );
                                                                 setId(null);
                                                             }}

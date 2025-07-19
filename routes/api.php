@@ -11,10 +11,14 @@ Route::get('/user', function (Request $request) {
 // This is the api.php file, so you can use AuthController methods here for API authentication. You will see in AuthCrontroller it is different from DemoController. The return statement is a JSON response, not an Inertia response. Use postman to test these API routes.
 Route::middleware("auth:sanctum")->group(function (){
   Route::get('/events',[EventController::class,'index']);
-  Route::post('/events',[EventController::class,'store']);
-  Route::get('/events/{id}',[EventController::class,'show']);
-  Route::put('/events/{id}',[EventController::class,'update']);
-  Route::delete('/events/{id}',[EventController::class,'destroy']);
+    Route::post('/events',[EventController::class,'store']);
+    Route::get('/events/{id}',[EventController::class,'show']);
+    Route::put('/events/{id}',[EventController::class,'update']);
+    Route::delete('/events/{id}',[EventController::class,'destroy']);
+    Route::post('/events/{id}/reviews', [EventController::class, 'storeReview']);
+    Route::get('/events/{id}/reviews', [EventController::class, 'getReviews']);
+    Route::put('/events/{id}/reviews/{reviewId}', [EventController::class, 'updateReview']);
+    Route::delete('/events/{id}/reviews/{reviewId}', [EventController::class, 'deleteReview']);
 });
 
 

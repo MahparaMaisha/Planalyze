@@ -40,7 +40,7 @@ function Login() {
             // router.get("/dashboard", { user });
             if( user.role_id === 2) {
                 router.visit("/planner/dashboard");
-            } else if (user.role === 1) {
+            } else if (user.role_id === 1) {
                 router.visit("/client/dashboard");
             }
 
@@ -57,6 +57,7 @@ function Login() {
                 } else if (typeof error.response.data.error === "object") {
                     setFormErrors(error.response.data.error);
                 }
+              window.alert("Login failed. Please check your credentials and try again.");
             } else {
                 console.error("Unexpected error:", error);
             }

@@ -26,6 +26,12 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::put('/edit-profile', [AuthController::class, 'editProfile'])->middleware('auth:sanctum');
 Route::delete('/delete-account', [AuthController::class, 'deleteAccount'])->middleware('auth:sanctum');
-Route::get("/logout", [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::post("/logout", [AuthController::class, 'logout'])->middleware('auth:sanctum');
 Route::get('/dashboard', [AuthController::class, 'dashboard'])->middleware('auth:sanctum');
-   
+Route::get('/planners', [ClientEventController::class, 'index'])->middleware('auth:sanctum');
+
+//client routes
+Route::get('/planner-search', [ClientEventController::class, 'plannerSearch'])->middleware('auth:sanctum');
+Route::get('/planners/{id}', [ClientEventController::class, 'getPlanner'])->middleware('auth:sanctum');
+Route::post('/leave-review', [ClientEventController::class, 'leaveReview'])->middleware('auth:sanctum');
+Route::get('/get-top-rated-planners', [ClientEventController::class, 'getTopRatedAllPlanners'])->middleware('auth:sanctum');

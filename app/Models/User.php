@@ -51,4 +51,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Review::class);
     }
+    public function events()
+    {
+        return $this->hasMany(Event::class, 'planner_id');
+    }
 }

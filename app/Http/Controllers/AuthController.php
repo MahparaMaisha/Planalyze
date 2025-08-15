@@ -51,7 +51,7 @@ class AuthController extends Controller
         }
 
         $user = User::where('email', $request->email)->first();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('token')->plainTextToken;
 
         return response()->json([
             'token' => $token,
@@ -72,8 +72,15 @@ class AuthController extends Controller
     // User logout
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
-        return response()->json(['message' => 'Logged out successfully']);
+        try {
+            $request->user()->tokens()->delete();
+            return response()->json(['message' => 'Logged out successfully']);
+        } catch (\Exception $e) {
+            return response()->json([
+          'message' => 'Logout failed',
+          'error' => $e->getMessage(),
+            ], 400);
+        }
     }
     public function editProfile(Request $request){
         $user = Auth::user();

@@ -27,7 +27,6 @@ const Register = ({ countries }) => {
             errors.email = "Email is invalid.";
         }
 
-
         if (!password.trim()) {
             errors.password = "Password is required.";
         } else if (password.length < 5) {
@@ -60,6 +59,7 @@ const Register = ({ countries }) => {
             email: mail,
             role_id,
             password_confirmation: passwordConfirmation,
+            bio: "",
         };
         try {
             const response = await axios.post(
@@ -156,7 +156,7 @@ const Register = ({ countries }) => {
                                 <input
                                     type="radio"
                                     name="role"
-                                    value="1"
+                                    value="2"
                                     className="radio radio-neutral"
                                     onChange={(e) =>
                                         setSelectedRole(e.target.value)
@@ -170,20 +170,21 @@ const Register = ({ countries }) => {
                                 <input
                                     type="radio"
                                     name="role"
-                                    value="2"
+                                    value="1"
                                     className="radio radio-neutral"
                                     onChange={(e) =>
                                         setSelectedRole(e.target.value)
                                     }
                                 />
-                                <p className="text-l text-black">Event Planner</p>
+                                <p className="text-l text-black">
+                                    Event Planner
+                                </p>
                             </label>
                             <br />
 
                             {/* <p>Selected Role ID: {selectedRole}</p> */}
                         </div>
                     </div>
-
 
                     <div className="mb-6">
                         <label

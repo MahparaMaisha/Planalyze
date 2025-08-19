@@ -1,7 +1,10 @@
 <?php
 
+// database/factories/UserFactory.php
 namespace Database\Factories;
 
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -25,11 +28,11 @@ class UserFactory extends Factory
     {
         return [
             'name' => fake()->name(),
-            'role_id' => 1, // Assuming 1 is the default role ID for users
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'role_id' => Role::factory(),
         ];
     }
 
@@ -40,6 +43,30 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * Create a user with admin role.
+     */
+
+    /**
+     * Create a user with planner role.
+     */
+    public function planner(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role_id' => Role::where('name', 'planner')->first()?->id ?? Role::factory()->planner()->create()->id,
+        ]);
+    }
+
+    /**
+     * Create a user with client role.
+     */
+    public function client(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role_id' => Role::where('name', 'client')->first()?->id ?? Role::factory()->client()->create()->id,
         ]);
     }
 }

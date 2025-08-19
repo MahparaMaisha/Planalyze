@@ -47,12 +47,28 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    // Reviews received by this planner (if reviews are directly on planners)
     public function reviews()
     {
-        return $this->hasMany(Review::class);
+        return $this->hasMany(Review::class, 'planner_id');
     }
+
+    // Reviews given by this user (if they leave reviews)
+    public function givenReviews()
+    {
+        return $this->hasMany(Review::class, 'user_id');
+    }
+
+    // Events planned by this user
     public function events()
     {
         return $this->hasMany(Event::class, 'planner_id');
+    }
+
+    // Planner profile
+    public function planner()
+    {
+        return $this->hasOne(Planner::class);
     }
 }

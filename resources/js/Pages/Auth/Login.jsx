@@ -38,13 +38,11 @@ function Login() {
             const user = await checkAuth();
             console.log("User authenticated:", user);
             // router.get("/dashboard", { user });
-            if( user.role_id === 2) {
+            if (user.role_id === 1) {
                 router.visit("/planner/dashboard");
-            } else if (user.role_id === 1) {
+            } else if (user.role_id === 2) {
                 router.visit("/client/dashboard");
             }
-
-
         } catch (error) {
             if (error.response) {
                 console.log(
@@ -57,7 +55,9 @@ function Login() {
                 } else if (typeof error.response.data.error === "object") {
                     setFormErrors(error.response.data.error);
                 }
-              window.alert("Login failed. Please check your credentials and try again.");
+                window.alert(
+                    "Login failed. Please check your credentials and try again."
+                );
             } else {
                 console.error("Unexpected error:", error);
             }
@@ -67,7 +67,9 @@ function Login() {
     return (
         <div className="flex justify-center items-center h-screen bg-gray-100">
             <div className="bg-white shadow-md rounded-lg px-8 py-6 w-96">
-                <h2 className="text-2xl font-bold mb-4 text-center text-black">Login</h2>
+                <h2 className="text-2xl font-bold mb-4 text-center text-black">
+                    Login
+                </h2>
                 {Object.keys(formErrors).length > 0 && (
                     <div role="alert" className="alert alert-error">
                         <svg

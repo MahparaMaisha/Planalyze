@@ -19,7 +19,7 @@ return new class extends Migration
     $table->date('event_date');
     $table->string('category');
     $table->decimal('price', 10, 2);
-    $table->enum('status', ['draft', 'published'])->default('draft');
+    $table->enum('status', ['completed', 'active'])->default('active');
     $table->timestamps();
   });
     }

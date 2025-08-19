@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\Planner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -14,18 +14,35 @@ class AuthController extends Controller
     {
         try {
             $validated = $request->validate([
-          'name' => 'required|string|max:255',
-          'role_id' => 'required|exists:roles,id',
-          'email' => 'required|email|unique:users',
-          'password' => 'required|string|min:4|confirmed',
+                'name' => 'required|string|max:255',
+                'role_id' => 'required|exists:roles,id',
+                'email' => 'required|email|unique:users',
+                'password' => 'required|string|min:4|confirmed',
+                'bio' => 'nullable|string|max:1000',
             ]);
 
             $user = User::create([
-          'name' => $validated['name'],
-          'role_id' => $validated['role_id'],
-          'email' => $validated['email'],
-          'password' => Hash::make($validated['password']),
+                'name' => $validated['name'],
+                'role_id' => $validated['role_id'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
             ]);
+
+            if($validated['role_id'] === 1){
+                if($validated['bio']){
+                    Planner::create([
+                        'user_id' => $user->id,
+                        'name' => $validated['name'],
+                        'bio' => $validated['bio'],
+                    ]);
+                }else{
+                    Planner::create([
+                        'user_id' => $user->id,
+                        'name' => $validated['name'],
+                        'bio' => '',
+                    ]);
+                }
+            }
 
             return response()->json([
           'user' => $user,
@@ -87,7 +104,14 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
+            'bio' => 'nullable|string|max:1000',
         ]);
+
+        if($user->role_id === 1){
+            $planner = $user->planner;
+            $planner->bio = $validated['bio'];
+            $planner->save();
+        }
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];

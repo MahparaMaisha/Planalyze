@@ -16,7 +16,7 @@ class ClientEventController extends Controller
         }
     }
 
-    public function plannerSearch(Request $request)
+        public function plannerSearch(Request $request)
     {
         try {
             $query = $request->input('q');
@@ -35,26 +35,37 @@ class ClientEventController extends Controller
             return response()->json(['message' => 'Failed to search planners', 'error' => $e->getMessage()], 500);
         }
     }
+
     public function getTopRatedAllPlanners(Request $request)
     {
         try {
-            $planners = \App\Models\User::where('role_id', 2)
-                ->with(['events.reviews'])
+            $planners = \App\Models\User::where('role_id', 1)
+                ->with([
+                    'reviews' => function($query) {
+                        $query->with('user:id,name')->orderBy('created_at', 'desc');
+                    },
+                    'planner'
+                ])
                 ->get()
                 ->map(function ($planner) {
-                    $reviews = $planner->events->flatMap->reviews;
-                    $average_rating = $reviews->avg('rating');
-                    $planner->average_rating = $average_rating ?? 0;
+                    // Calculate average rating from direct reviews
+                    $average_rating = $planner->reviews->avg('rating');
+                    $planner->average_rating = round($average_rating ?? 0, 1);
                     return $planner;
                 })
                 ->sortByDesc('average_rating')
                 ->values();
 
-            return response()->json(['message' => 'Top rated planners retrieved successfully', 'planners' => $planners]);
+            return response()->json([
+                'message' => 'Top rated planners retrieved successfully',
+                'planners' => $planners
+            ]);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Failed to retrieve top rated planners', 'error' => $e->getMessage()], 500);
+            return response()->json([
+                'message' => 'Failed to retrieve top rated planners',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
     }
     public function getPlanner($id)
     {
@@ -67,14 +78,14 @@ class ClientEventController extends Controller
     }
     public function leaveReview(Request $request){
         $validated = $request->validate([
-            'event_id' => 'required|exists:events,id',
+            'planner_id' => 'required|exists:users,id',
             'rating' => 'required|integer|between:1,5',
             'comment' => 'required|string|max:1000',
         ]);
 
         try {
             $review = new \App\Models\Review();
-            $review->event_id = $validated['event_id'];
+            $review->planner_id = $validated['planner_id'];
             $review->user_id = $request->user()->id;
             $review->rating = $validated['rating'];
             $review->comment = $validated['comment'];

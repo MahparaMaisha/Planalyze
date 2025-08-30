@@ -18,7 +18,11 @@ class EventSeeder extends Seeder
     {
         // Get planner role and users
         $plannerRole = Role::where('name', 'planner')->first();
-        $plannerUsers = User::where('role_id', $plannerRole->id)->pluck('id')->toArray();
+        $plannerUsers = User::where('role_id', $plannerRole->id)->pluck('id')
+        ->toArray();
+        $clientRole = Role::where('name', 'client')->first();
+        $clientUsers = User::where('role_id', $clientRole->id)->pluck('id')
+        ->toArray();
 
         if (empty($plannerUsers)) {
             $this->command->warn('No planner users found. Please run UserSeeder first.');
@@ -32,7 +36,11 @@ class EventSeeder extends Seeder
             ->create([
                 'planner_id' => function () use ($plannerUsers) {
                     return $plannerUsers[array_rand($plannerUsers)];
+                },
+                'client_id' => function () use ($clientUsers) {
+                    return $clientUsers[array_rand($clientUsers)];
                 }
+
             ]);
 
         Event::factory()
@@ -41,6 +49,9 @@ class EventSeeder extends Seeder
             ->create([
                 'planner_id' => function () use ($plannerUsers) {
                     return $plannerUsers[array_rand($plannerUsers)];
+                },
+                'client_id' => function () use ($clientUsers) {
+                    return $clientUsers[array_rand($clientUsers)];
                 }
             ]);
 
@@ -50,6 +61,9 @@ class EventSeeder extends Seeder
             ->create([
                 'planner_id' => function () use ($plannerUsers) {
                     return $plannerUsers[array_rand($plannerUsers)];
+                },
+                'client_id' => function () use ($clientUsers) {
+                    return $clientUsers[array_rand($clientUsers)];
                 }
             ]);
 
@@ -60,6 +74,9 @@ class EventSeeder extends Seeder
             ->create([
                 'planner_id' => function () use ($plannerUsers) {
                     return $plannerUsers[array_rand($plannerUsers)];
+                },
+                'client_id' => function () use ($clientUsers) {
+                    return $clientUsers[array_rand($clientUsers)];
                 }
             ]);
 
@@ -70,6 +87,9 @@ class EventSeeder extends Seeder
             ->create([
                 'planner_id' => function () use ($plannerUsers) {
                     return $plannerUsers[array_rand($plannerUsers)];
+                },
+                'client_id' => function () use ($clientUsers) {
+                    return $clientUsers[array_rand($clientUsers)];
                 }
             ]);
 
@@ -79,6 +99,9 @@ class EventSeeder extends Seeder
             ->create([
                 'planner_id' => function () use ($plannerUsers) {
                     return $plannerUsers[array_rand($plannerUsers)];
+                },
+                'client_id' => function () use ($clientUsers) {
+                    return $clientUsers[array_rand($clientUsers)];
                 }
             ]);
     }

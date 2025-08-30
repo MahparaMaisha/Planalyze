@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BookingRequest;
 use App\Models\Event;
 use App\Models\Review;
 use Illuminate\Http\Request;
@@ -15,11 +16,7 @@ class EventController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $events = Event::with(['planner', 'reviews.user']) // Eager load user inside reviews
-            ->whereHas('planner', function ($query) use ($user) {
-                $query->where('id', $user->id);
-            })
-            ->get();
+        $events = Event::where('planner_id', $user->id)->get();
 
         return response()->json($events);
     }
@@ -32,6 +29,7 @@ class EventController extends Controller
         try {
             $validated = $request->validate([
                 'title' => 'required|string|max:255',
+                'client_id' => 'nullable|exists:clients,id',
                 'description' => 'required|string',
                 'event_date' => 'required|date',
                 'category' => 'required|string',
@@ -136,7 +134,7 @@ class EventController extends Controller
 
         return response()->json(['message' => 'Review deleted successfully.']);
     }
-    
+
     /**
      * Update the specified resource in storage.
      */
@@ -168,6 +166,53 @@ class EventController extends Controller
 
         return response()->json([
             'message' => 'Event deleted successfully'
+        ]);
+    }
+    public function getBookingRequests()
+    {
+        $requests = BookingRequest::where('planner_id', Auth::id())->with('planner','user')->get();
+
+        return response()->json($requests);
+    }
+    public function updateBookingRequestStatusAccept(Request $request, $id)
+    {
+
+        $bookingRequest = BookingRequest::findOrFail($id);
+
+        if ($bookingRequest->planner_id !== Auth::id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        $event = Event::create([
+            'title' => $bookingRequest->title,
+            'client_id' => $bookingRequest->user_id,
+            'planner_id' => $bookingRequest->planner_id,
+            'description' => $bookingRequest->description,
+            'event_date' => $bookingRequest->event_date,
+            'category' => $bookingRequest->category,
+            'price' => $bookingRequest->price,
+            'status' => 'active',
+        ]);
+        $bookingRequest->delete();
+
+        return response()->json([
+            'message' => 'Booking request status updated successfully',
+            'bookingRequest' => $bookingRequest
+        ]);
+    }
+    public function updateBookingRequestStatusDecline(Request $request, $id)
+    {
+
+        $bookingRequest = BookingRequest::findOrFail($id);
+
+        if ($bookingRequest->planner_id !== Auth::id()) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $bookingRequest->delete();
+
+        return response()->json([
+            'message' => 'Booking request deleted successfully',
+            'bookingRequest' => $bookingRequest
         ]);
     }
 }

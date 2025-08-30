@@ -99,6 +99,17 @@ const Layout = ({ user, children }) => {
                             <li>
                                 <a
                                     onClick={() =>
+                                        handleNavigation(
+                                            "/planner/booking-requests"
+                                        )
+                                    }
+                                >
+                                    Booking Requests
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    onClick={() =>
                                         handleNavigation("/planner/account")
                                     }
                                 >

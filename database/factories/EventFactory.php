@@ -30,6 +30,7 @@ class EventFactory extends Factory
 
         return [
             'planner_id' => User::factory()->planner(),
+            'client_id' => User::factory()->client(),
             'title' => $this->faker->sentence(4),
             'description' => $this->faker->paragraph(5),
             'event_date' => $this->faker->dateTimeBetween('-6 months', '+1 year'),

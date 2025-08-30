@@ -32,4 +32,7 @@ class PlannerController extends Controller
     {
         return inertia("Planner/Account");
     }
+    public function BookingRequest(){
+        return inertia("Planner/BookingRequest");
+    }
 }

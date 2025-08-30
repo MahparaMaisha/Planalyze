@@ -71,4 +71,18 @@ class User extends Authenticatable
     {
         return $this->hasOne(Planner::class);
     }
+
+    public function clientEvents()
+    {
+        return $this->hasMany(Event::class, 'client_id');
+    }
+
+    public function bookingRequests()
+    {
+        return $this->hasMany(BookingRequest::class, 'user_id');
+    }
+    public function bookingsAsPlanner()
+    {
+        return $this->hasMany(BookingRequest::class, 'planner_id');
+    }
 }

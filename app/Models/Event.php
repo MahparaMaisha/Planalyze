@@ -10,6 +10,7 @@ class Event extends Model
   use HasFactory;
     protected $fillable = [
       'planner_id',
+      'client_id',
       'title',
       'description',
       'event_date',
@@ -23,5 +24,8 @@ class Event extends Model
     public function reviews()
     {
         return $this->hasMany(Review::class);
+    }
+    public function client(){
+      return $this->belongsTo(User::class, 'client_id');
     }
 }

@@ -15,12 +15,14 @@ Route::get("/register", [PlannerController::class, 'register']);
 Route::get("/planner/dashboard", [PlannerController::class, 'dashboard']);
 Route::get("/planner/events", [PlannerController::class, 'events']);
 Route::get("/planner/account", [PlannerController::class, 'account']);
+Route::get("/planner/booking-requests", [PlannerController::class, 'BookingRequest']);
 // Client routes, which are similar to planner routes
 Route::get("/client/dashboard", [ClientController::class, 'dashboard']);
 Route::get("/client/events", [ClientController::class, 'events']);
 Route::get("/client/account", [ClientController::class, 'account']);
 
-// Never make this mistake!!! You are in web.php, not api.php. So do not use AuthController methods here. AuthController is typically used in api.php for API authentication. This was the first mistake here. 
+
+// Never make this mistake!!! You are in web.php, not api.php. So do not use AuthController methods here. AuthController is typically used in api.php for API authentication. This was the first mistake here.
 //For web routes, you typically use controllers that return views or Inertia responses, not API controllers like AuthController which doesn't return any type of view.
 // Route::post('/register', [AuthController::class, 'register']);
 // Route::post('/login', [AuthController::class, 'login']);

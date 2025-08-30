@@ -6,14 +6,17 @@ const Events = () => {
     const accountDropdownRef = useRef(null);
     const [user, setUser] = useState({});
     const [events, setEvents] = useState([]);
+    const [clients, setClients] = useState([]);
     const [category, setCategory] = useState("all");
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
     const [price, setPrice] = useState("");
-    const [status, setStatus] = useState("draft");
+    const [status, setStatus] = useState("active");
+    const [clientId, setClientId] = useState(null);
     const [id, setId] = useState(null);
     const [editMode, setEditMode] = useState(true);
+    const [selectedClient, setSelectedClient] = useState(null);
     const token = localStorage.getItem("token");
     useEffect(() => {
         if (!token) {
@@ -73,6 +76,37 @@ const Events = () => {
 
         fetchEvents();
     }, [token]);
+    useEffect(() => {
+        if (!token) {
+            router.visit("/unauthorized");
+            return;
+        }
+
+        const fetchClients = async () => {
+            try {
+                const response = await fetch(
+                    "http://127.0.0.1:8000/api/clients",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+                if (response.ok) {
+                    const clientData = await response.json();
+                    setClients(clientData.clients);
+                    console.log("Clients data:", clientData.clients);
+                } else {
+                    router.visit("/unauthorized");
+                }
+            } catch (error) {
+                console.log("Error fetching events data:", error);
+                router.visit("/unauthorized");
+            }
+        };
+
+        fetchClients();
+    }, [token]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -88,6 +122,7 @@ const Events = () => {
             category: category,
             price: Number(price),
             status,
+            client_id: selectedClient ? parseInt(selectedClient) : null,
         };
 
         try {
@@ -188,6 +223,7 @@ const Events = () => {
                                 className="btn btn-primary"
                                 onClick={() => {
                                     setEditMode(false);
+                                    setSelectedClient(null);
                                     document
                                         .getElementById(`add_event_modal`)
                                         .showModal();
@@ -240,6 +276,48 @@ const Events = () => {
                                             }
                                         />
                                     </fieldset>
+                                    {editMode === false && (
+                                        <fieldset className="fieldset">
+                                            <legend className="fieldset-legend">
+                                                Event Client
+                                            </legend>
+                                            <select
+                                                className="select w-full"
+                                                value={selectedClient}
+                                                onChange={(e) => {
+                                                    {
+                                                        setSelectedClient(
+                                                            e.target.value
+                                                        );
+                                                        console.log(
+                                                            e.target.value
+                                                        );
+                                                    }
+                                                }}
+                                            >
+                                                <option value="">
+                                                    Select a client
+                                                </option>
+                                                {clients.map((client) => (
+                                                    <option
+                                                        key={client.id}
+                                                        value={client.id}
+                                                    >
+                                                        {client.name}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </fieldset>
+                                    )}
+
+                                    {editMode === true && (
+                                        <fieldset className="fieldset">
+                                            <legend className="fieldset-legend">
+                                                Event Client
+                                            </legend>
+                                        </fieldset>
+                                    )}
+
                                     <fieldset className="fieldset">
                                         <legend className="fieldset-legend">
                                             Event Price
@@ -265,9 +343,11 @@ const Events = () => {
                                                 setStatus(e.target.value)
                                             }
                                         >
-                                            <option value="draft">Draft</option>
-                                            <option value="published">
-                                                Published
+                                            <option value="active">
+                                                Active
+                                            </option>
+                                            <option value="completed">
+                                                Completed
                                             </option>
                                         </select>
                                     </fieldset>
@@ -287,8 +367,9 @@ const Events = () => {
                                                     setDescription("");
                                                     setDate("");
                                                     setPrice("");
-                                                    setStatus("draft");
+                                                    setStatus("active");
                                                     setId(null);
+                                                    setSelectedClient(null);
                                                     setEditMode(true);
                                                 }}
                                             >
@@ -338,6 +419,16 @@ const Events = () => {
                                                 setPrice(event.price);
                                                 setStatus(event.status);
                                                 setId(event.id);
+
+                                                // Populate selectedClients if the event has associated clients
+                                                if (event.client_id) {
+                                                    setSelectedClient(
+                                                        event.client_id.toString()
+                                                    );
+                                                } else {
+                                                    setSelectedClient("");
+                                                }
+
                                                 document
                                                     .getElementById(
                                                         `event_modal_${event.id}`
@@ -347,75 +438,7 @@ const Events = () => {
                                         >
                                             View Details
                                         </button>
-                                        {/* Open the modal using document.getElementById('ID').showModal() method */}
-                                        <button
-                                            className="mt-2 ml-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 cursor-pointer"
-                                            onClick={() =>
-                                                document
-                                                    .getElementById(
-                                                        `review_modal_${event.id}`
-                                                    )
-                                                    .showModal()
-                                            }
-                                        >
-                                            See Reviews
-                                        </button>
-                                        <dialog
-                                            id={`review_modal_${event.id}`}
-                                            className="modal modal-bottom sm:modal-middle"
-                                        >
-                                            <div className="modal-box max-h-[80vh] overflow-y-auto">
-                                                <h3 className="font-bold text-lg mb-4">
-                                                    Client Reviews
-                                                </h3>
 
-                                                {event.reviews.length === 0 ? (
-                                                    <p className="text-gray-500">
-                                                        No reviews yet.
-                                                    </p>
-                                                ) : (
-                                                    <div className="space-y-4">
-                                                        {event.reviews.map(
-                                                            (review, idx) => (
-                                                                <div
-                                                                    key={idx}
-                                                                    className="border rounded-xl p-4 bg-gray-100 shadow"
-                                                                >
-                                                                    <div className="flex justify-between items-center">
-                                                                        <p className="font-semibold">
-                                                                            {review
-                                                                                .user
-                                                                                ?.name ??
-                                                                                "Unknown User"}
-                                                                        </p>
-                                                                        <span className="text-yellow-500 font-medium">
-                                                                            ⭐{" "}
-                                                                            {
-                                                                                review.rating
-                                                                            }
-                                                                            /5
-                                                                        </span>
-                                                                    </div>
-                                                                    <p className="mt-2 text-gray-700">
-                                                                        {
-                                                                            review.comment
-                                                                        }
-                                                                    </p>
-                                                                </div>
-                                                            )
-                                                        )}
-                                                    </div>
-                                                )}
-
-                                                <div className="modal-action">
-                                                    <form method="dialog">
-                                                        <button className="btn btn-primary">
-                                                            Close
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </dialog>
                                         <dialog
                                             id={`event_modal_${event.id}`}
                                             className="modal modal-bottom sm:modal-middle"
@@ -436,6 +459,43 @@ const Events = () => {
                                                             )
                                                         }
                                                     />
+                                                </fieldset>
+                                                <fieldset className="fieldset">
+                                                    <legend className="fieldset-legend">
+                                                        Event Client
+                                                    </legend>
+                                                    <select
+                                                        className="select w-full"
+                                                        disabled
+                                                        value={
+                                                            selectedClient || ""
+                                                        }
+                                                        onChange={(e) =>
+                                                            setSelectedClient(
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                    >
+                                                        <option value="">
+                                                            Select a client
+                                                        </option>
+                                                        {clients.map(
+                                                            (client) => (
+                                                                <option
+                                                                    key={
+                                                                        client.id
+                                                                    }
+                                                                    value={
+                                                                        client.id
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        client.name
+                                                                    }
+                                                                </option>
+                                                            )
+                                                        )}
+                                                    </select>
                                                 </fieldset>
                                                 <fieldset className="fieldset">
                                                     <legend className="fieldset-legend">
@@ -496,11 +556,11 @@ const Events = () => {
                                                             )
                                                         }
                                                     >
-                                                        <option value="draft">
-                                                            Draft
+                                                        <option value="active">
+                                                            Active
                                                         </option>
-                                                        <option value="published">
-                                                            Published
+                                                        <option value="completed">
+                                                            Completed
                                                         </option>
                                                     </select>
                                                 </fieldset>
@@ -529,7 +589,7 @@ const Events = () => {
                                                                 setDate("");
                                                                 setPrice("");
                                                                 setStatus(
-                                                                    "draft"
+                                                                    "active"
                                                                 );
                                                                 setId(null);
                                                             }}

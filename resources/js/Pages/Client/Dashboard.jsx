@@ -13,6 +13,99 @@ const Dashboard = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [isSearching, setIsSearching] = useState(false);
     const token = localStorage.getItem("token");
+    const [emailData, setEmailData] = useState({});
+    const [formData, setFormData] = useState({
+        title: "",
+        description: "",
+        event_date: "",
+        category: "",
+        price: "",
+    });
+
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleSubmit = async (e, planner_id) => {
+        e.preventDefault();
+
+        try {
+            const response = await axios.post(
+                "/api/booking-requests",
+                {
+                    ...formData,
+                    planner_id,
+                    user_id: user?.id, // client id
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "token"
+                        )}`,
+                    },
+                }
+            );
+
+            console.log("Booking success:", response.data);
+
+            // close modal
+            document.getElementById(`request_modal_${planner_id}`).close();
+
+            // statically mark planner as disabled
+            const updatedPlanners = planners.map((p) =>
+                p.id === planner_id ? { ...p, disabled: true } : p
+            );
+            setPlanners(updatedPlanners);
+        } catch (error) {
+            console.error(
+                "Booking failed:",
+                error.response?.data || error.message
+            );
+        }
+    };
+
+    const sendEmail = async (planner) => {
+        const token = localStorage.getItem("token"); // adjust key if different
+        const data = emailData[planner.id];
+
+        if (!data?.subject || !data?.message) {
+            alert("Subject and message are required.");
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/contact", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    email: planner.email,
+                    subject: data.subject,
+                    message: data.message,
+                    name: "User", // optional: pull from auth user if available
+                }),
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                alert("Email sent successfully!");
+                setEmailData((prev) => ({
+                    ...prev,
+                    [planner.id]: { subject: "", message: "" },
+                }));
+            } else {
+                alert(result.message || "Failed to send email");
+            }
+        } catch (error) {
+            console.error("Error sending email:", error);
+            alert("An error occurred.");
+        }
+    };
 
     useEffect(() => {
         if (!token) {
@@ -310,9 +403,150 @@ const Dashboard = () => {
                                             className="modal"
                                         >
                                             <div className="modal-box max-w-2xl">
-                                                <h3 className="font-bold text-lg mb-4">
-                                                    {planner.name}
-                                                </h3>
+                                                <div className="flex justify-between">
+                                                    <h3 className="font-bold text-lg mb-4">
+                                                        {planner.name}
+                                                    </h3>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            className="btn btn-neutral"
+                                                            disabled={
+                                                                planner.disabled
+                                                            }
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                document
+                                                                    .getElementById(
+                                                                        `request_modal_${planner.id}`
+                                                                    )
+                                                                    .showModal();
+                                                            }}
+                                                        >
+                                                            Request Service
+                                                        </button>
+                                                        <dialog
+                                                            id={`request_modal_${planner.id}`}
+                                                            className="modal"
+                                                        >
+                                                            <div className="modal-box">
+                                                                <h3 className="font-bold text-lg">
+                                                                    Request
+                                                                    Service
+                                                                </h3>
+                                                                <form
+                                                                    onSubmit={(
+                                                                        e
+                                                                    ) =>
+                                                                        handleSubmit(
+                                                                            e,
+                                                                            planner?.id
+                                                                        )
+                                                                    }
+                                                                    className="space-y-3 mt-3"
+                                                                >
+                                                                    <input
+                                                                        type="text"
+                                                                        name="title"
+                                                                        placeholder="Title"
+                                                                        className="input input-bordered w-full"
+                                                                        value={
+                                                                            formData.title
+                                                                        }
+                                                                        onChange={
+                                                                            handleChange
+                                                                        }
+                                                                        required
+                                                                    />
+                                                                    <textarea
+                                                                        name="description"
+                                                                        placeholder="Description"
+                                                                        className="textarea textarea-bordered w-full"
+                                                                        value={
+                                                                            formData.description
+                                                                        }
+                                                                        onChange={
+                                                                            handleChange
+                                                                        }
+                                                                        required
+                                                                    />
+                                                                    <input
+                                                                        type="date"
+                                                                        name="event_date"
+                                                                        className="input input-bordered w-full"
+                                                                        value={
+                                                                            formData.event_date
+                                                                        }
+                                                                        onChange={
+                                                                            handleChange
+                                                                        }
+                                                                        required
+                                                                    />
+                                                                    <input
+                                                                        type="text"
+                                                                        name="category"
+                                                                        placeholder="Category"
+                                                                        className="input input-bordered w-full"
+                                                                        value={
+                                                                            formData.category
+                                                                        }
+                                                                        onChange={
+                                                                            handleChange
+                                                                        }
+                                                                        required
+                                                                    />
+                                                                    <input
+                                                                        type="number"
+                                                                        name="price"
+                                                                        placeholder="Price"
+                                                                        className="input input-bordered w-full"
+                                                                        value={
+                                                                            formData.price
+                                                                        }
+                                                                        onChange={
+                                                                            handleChange
+                                                                        }
+                                                                        required
+                                                                    />
+
+                                                                    <div className="modal-action">
+                                                                        <button
+                                                                            type="submit"
+                                                                            className="btn btn-primary"
+                                                                        >
+                                                                            Submit
+                                                                        </button>
+                                                                        <button
+                                                                            type="button"
+                                                                            className="btn"
+                                                                            onClick={() =>
+                                                                                document
+                                                                                    .getElementById(
+                                                                                        `request_modal_${planner.id}`
+                                                                                    )
+                                                                                    .close()
+                                                                            }
+                                                                        >
+                                                                            Cancel
+                                                                        </button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </dialog>
+                                                        <button
+                                                            className="btn btn-secondary"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                document
+                                                                    .getElementById(
+                                                                        `email_modal_${planner.id}`
+                                                                    )
+                                                                    .showModal();
+                                                            }}
+                                                        >
+                                                            Email Planner
+                                                        </button>
+                                                    </div>
+                                                </div>
 
                                                 {/* Planner Bio Section */}
                                                 <div className="mb-6">
@@ -524,6 +758,112 @@ const Dashboard = () => {
                                                     <form method="dialog">
                                                         <button className="btn">
                                                             Close
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </dialog>
+                                    </div>
+                                    <div>
+                                        <dialog
+                                            id={`email_modal_${planner.id}`}
+                                            className="modal"
+                                        >
+                                            <div className="modal-box max-w-lg">
+                                                <h3 className="font-bold text-lg mb-4">
+                                                    Email {planner.name}
+                                                </h3>
+
+                                                {/* Subject */}
+                                                <div className="mb-4">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                        Subject *
+                                                    </label>
+                                                    <input
+                                                        type="text"
+                                                        value={
+                                                            emailData[
+                                                                planner.id
+                                                            ]?.subject || ""
+                                                        }
+                                                        onChange={(e) =>
+                                                            setEmailData(
+                                                                (prev) => ({
+                                                                    ...prev,
+                                                                    [planner.id]:
+                                                                        {
+                                                                            ...prev[
+                                                                                planner
+                                                                                    .id
+                                                                            ],
+                                                                            subject:
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                        },
+                                                                })
+                                                            )
+                                                        }
+                                                        className="input input-bordered w-full"
+                                                        placeholder="Enter email subject"
+                                                    />
+                                                </div>
+
+                                                {/* Message */}
+                                                <div className="mb-4">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                        Message *
+                                                    </label>
+                                                    <textarea
+                                                        value={
+                                                            emailData[
+                                                                planner.id
+                                                            ]?.message || ""
+                                                        }
+                                                        onChange={(e) =>
+                                                            setEmailData(
+                                                                (prev) => ({
+                                                                    ...prev,
+                                                                    [planner.id]:
+                                                                        {
+                                                                            ...prev[
+                                                                                planner
+                                                                                    .id
+                                                                            ],
+                                                                            message:
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                        },
+                                                                })
+                                                            )
+                                                        }
+                                                        className="textarea textarea-bordered w-full h-24 resize-none"
+                                                        placeholder="Type your message..."
+                                                    />
+                                                </div>
+
+                                                {/* Actions */}
+                                                <div className="modal-action">
+                                                    <button
+                                                        className="btn btn-primary"
+                                                        onClick={async (e) => {
+                                                            e.stopPropagation();
+                                                            await sendEmail(
+                                                                planner
+                                                            );
+                                                            document
+                                                                .getElementById(
+                                                                    `email_modal_${planner.id}`
+                                                                )
+                                                                .close();
+                                                        }}
+                                                    >
+                                                        Send Email
+                                                    </button>
+                                                    <form method="dialog">
+                                                        <button className="btn">
+                                                            Cancel
                                                         </button>
                                                     </form>
                                                 </div>

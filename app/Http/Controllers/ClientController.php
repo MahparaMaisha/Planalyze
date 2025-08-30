@@ -31,4 +31,5 @@ class ClientController extends Controller
     {
         return inertia("Client/Account");
     }
+    
 }

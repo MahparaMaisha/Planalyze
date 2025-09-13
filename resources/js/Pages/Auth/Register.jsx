@@ -1,14 +1,9 @@
-import { router, usePage } from "@inertiajs/react";
+import { router } from "@inertiajs/react";
 import axios from "axios";
 import { useState } from "react";
-const Register = ({ countries }) => {
-    const countryCodes = countries;
-    const props = usePage().props;
-    const [prefix, setPrefix] = useState("44");
-    const [number, setNumber] = useState("");
+const Register = () => {
     const [name, setName] = useState("");
     const [mail, setMail] = useState("");
-    const [address, setAddress] = useState("");
     const [password, setPassword] = useState("");
     const [selectedRole, setSelectedRole] = useState(null);
     const [formErrors, setFormErrors] = useState({});
@@ -54,12 +49,11 @@ const Register = ({ countries }) => {
         }
         const role_id = Number(selectedRole);
         const formData = {
-            name,
-            password,
+            name, //name: name
+            password, // password: password
             email: mail,
             role_id,
             password_confirmation: passwordConfirmation,
-            bio: "",
         };
         try {
             const response = await axios.post(
@@ -123,7 +117,9 @@ const Register = ({ countries }) => {
                             type="text"
                             placeholder="Enter your name"
                             value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            onChange={(e) => {
+                                setName(e.target.value);
+                            }}
                             required
                         />
                     </div>

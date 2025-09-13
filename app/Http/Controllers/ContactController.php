@@ -42,13 +42,13 @@ class ContactController extends Controller
         //         $request->name
         //     )
         // );
-        Mail::to("mahparamomomaisha95027@gmail.com")->send(
-            new ContactMail(
-                $request->subject,
-                $request->message,
-                $request->name
-            )
-        );
+        // Mail::to("mahparamomomaisha95027@gmail.com")->send(
+        //     new ContactMail(
+        //         $request->subject,
+        //         $request->message,
+        //         $request->name
+        //     )
+        // );
 
         return response()->json([
             'message' => 'Mail sent!',

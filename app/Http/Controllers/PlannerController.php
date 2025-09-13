@@ -10,7 +10,9 @@ class PlannerController extends Controller
 {
     public function slashView()
     {
-        return Inertia::render('Home');
+        return inertia('Home',props: [
+            'message' => 'Welcome to Event Planner Platform'
+        ]);
     }
     public function login()
     {
@@ -19,10 +21,6 @@ class PlannerController extends Controller
     public function register()
     {
         return inertia("Auth/Register");
-    }
-    public function dashboard()
-    {
-        return inertia("Planner/Dashboard");
     }
     public function events()
     {

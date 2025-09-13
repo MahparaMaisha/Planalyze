@@ -18,7 +18,6 @@ class AuthController extends Controller
                 'role_id' => 'required|exists:roles,id',
                 'email' => 'required|email|unique:users',
                 'password' => 'required|string|min:4|confirmed',
-                'bio' => 'nullable|string|max:1000',
             ]);
 
             $user = User::create([
@@ -29,23 +28,15 @@ class AuthController extends Controller
             ]);
 
             if($validated['role_id'] === 1){
-                if($validated['bio']){
-                    Planner::create([
-                        'user_id' => $user->id,
-                        'name' => $validated['name'],
-                        'bio' => $validated['bio'],
-                    ]);
-                }else{
-                    Planner::create([
+                Planner::create([
                         'user_id' => $user->id,
                         'name' => $validated['name'],
                         'bio' => '',
                     ]);
-                }
             }
 
             return response()->json([
-          'user' => $user,
+                'user' => $user,
             ], 201);
         } catch (\Exception $e) {
             return response()->json([

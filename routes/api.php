@@ -7,12 +7,16 @@ use App\Http\Controllers\AuthController;
 use App\Models\Event;
 
 Route::get('/user', function (Request $request) {
-    return $request->user();
+    $user = $request->user();
+    if ($user && $user->role_id == 1) {
+        $user->load('planner');
+    }
+    return $user;
 })->middleware('auth:sanctum');
 
 // This is the api.php file, so you can use AuthController methods here for API authentication. You will see in AuthCrontroller it is different from DemoController. The return statement is a JSON response, not an Inertia response. Use postman to test these API routes.
 Route::middleware("auth:sanctum")->group(function (){
-  Route::get('/events',[EventController::class,'index']);
+    Route::get('/events',[EventController::class,'index']);
     Route::post('/events',[EventController::class,'store']);
     Route::get('/events/{id}',[EventController::class,'show']);
     Route::put('/events/{id}',[EventController::class,'update']);
@@ -31,6 +35,7 @@ Route::get('/planners', [ClientEventController::class, 'index'])->middleware('au
 
 //client routes
 Route::get('/planner-search', [ClientEventController::class, 'plannerSearch'])->middleware('auth:sanctum');
+Route::put('/update-planner-info', [EventController::class, 'editPlannerInfo'])->middleware('auth:sanctum');
 Route::get('/planners/{id}', [ClientEventController::class, 'getPlanner'])->middleware('auth:sanctum');
 Route::get('/booking-requests',[EventController::class,'getBookingRequests'])->middleware('auth:sanctum');
 Route::get('/accept-booking-request/{id}', [EventController::class, 'updateBookingRequestStatusAccept'])->middleware('auth:sanctum');
@@ -41,3 +46,10 @@ Route::get('/get-top-rated-planners', [ClientEventController::class, 'getTopRate
 Route::post('/contact', [ContactController::class, 'contactPost'])->middleware('auth:sanctum');
 
 Route::post('/booking-requests', [ClientEventController::class,'addRequest'])->middleware('auth:sanctum');
+
+
+Route::get('/momo-test', function () {
+    $users = \App\Models\User::all();
+    $reviews = \App\Models\Review::all();
+    return response()->json(['message' => 'API is working', 'users' => $users, 'reviews' => $reviews]);
+});

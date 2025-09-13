@@ -16,9 +16,12 @@ class EventController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $events = Event::where('planner_id', $user->id)->get();
-
-        return response()->json($events);
+        $events = Event::where('planner_id', $user->id)->orderBy('created_at', 'desc')->get();
+        $reviews = Review::where('planner_id', $user->id)->get();
+        return response()->json([
+            'events' => $events,
+            'reviews' => $reviews
+        ]);
     }
 
     /**
@@ -85,13 +88,13 @@ class EventController extends Controller
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
-          'message' => 'Validation failed',
-          'errors' => $e->errors(),
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
-          'message' => 'Something went wrong',
-          'error' => $e->getMessage(),
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
@@ -140,21 +143,33 @@ class EventController extends Controller
      */
     public function update(Request $request, Event $id)
     {
-        $validated = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string',
-            'event_date' => 'sometimes|required|date',
-            'category' => 'sometimes|required|string',
-            'price' => 'sometimes|required|numeric',
-            'status' => 'sometimes|required|in:draft,published',
-        ]);
+        try {
+            $validated = $request->validate([
+                'title' => 'required|string|max:255',
+                'description' => 'required|string',
+                'event_date' => 'required|date',
+                'category' => 'required|string',
+                'price' => 'required|numeric',
+                'status' => 'required|in:active,completed',
+            ]);
 
-        $id->update($validated);
+            $id->update($validated);
 
-        return response()->json([
+            return response()->json([
             'message' => 'Event updated successfully',
             'event' => $id
-        ]);
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+            'message' => 'Validation failed',
+            'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+            'message' => 'Something went wrong',
+            'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     /**
@@ -214,5 +229,37 @@ class EventController extends Controller
             'message' => 'Booking request deleted successfully',
             'bookingRequest' => $bookingRequest
         ]);
+    }
+    public function editPlannerInfo(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            if (!$user->planner) {
+                return response()->json([
+                    'message' => 'No planner profile found for this user'
+                ], 404);
+            }
+            $validated = $request->validate([
+                'name' => 'sometimes|required|string|max:255',
+                'bio' => 'sometimes|nullable|string',
+            ]);
+
+            $user->planner->update($validated);
+
+            return response()->json([
+                'message' => 'Planner information updated successfully',
+                'planner' => $user->planner
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Something went wrong',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

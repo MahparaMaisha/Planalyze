@@ -16,4 +16,12 @@ class Planner extends Model
     {
         return $this->belongsTo(User::class);
     }
-}
+    public function events()
+    {
+        return $this->hasMany(Event::class, 'planner_id');
+    }
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'planner_id');
+    }
+} 

@@ -8,11 +8,13 @@ use Inertia\Inertia;
 
 
 //use DemoController Which you have created. Make sure when you use in that controller you only use methods that return Inertia responses or views.
-Route::get('/', [PlannerController::class, 'slashView']);
+Route::get('/momo-test', [PlannerController::class, 'slashView']);
+
+
+
 Route::get("/login", [PlannerController::class, 'login'])->name('login');
 Route::get("/register", [PlannerController::class, 'register']);
 // Planner routes
-Route::get("/planner/dashboard", [PlannerController::class, 'dashboard']);
 Route::get("/planner/events", [PlannerController::class, 'events']);
 Route::get("/planner/account", [PlannerController::class, 'account']);
 Route::get("/planner/booking-requests", [PlannerController::class, 'BookingRequest']);

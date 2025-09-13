@@ -35,12 +35,16 @@ const ClientLayout = ({ user, children }) => {
             } else {
                 console.error("Logout failed:", response.statusText);
                 // Fallback: redirect to login page
-                window.alert("An error occurred while logging out. Please try again.");
+                window.alert(
+                    "An error occurred while logging out. Please try again."
+                );
             }
         } catch (error) {
             console.error("Logout error:", error);
             // Fallback: redirect to login page
-            window.alert("An error occurred while logging out. Please try again.");
+            window.alert(
+                "An error occurred while logging out. Please try again."
+            );
         }
     };
 
@@ -81,7 +85,7 @@ const ClientLayout = ({ user, children }) => {
                             <li>
                                 <a
                                     onClick={() =>
-                                        handleNavigation("/planner/dashboard")
+                                        handleNavigation("/client/dashboard")
                                     }
                                 >
                                     Dashboard
@@ -90,16 +94,7 @@ const ClientLayout = ({ user, children }) => {
                             <li>
                                 <a
                                     onClick={() =>
-                                        handleNavigation("/planner/events")
-                                    }
-                                >
-                                    Events
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    onClick={() =>
-                                        handleNavigation("/planner/account")
+                                        handleNavigation("/client/account")
                                     }
                                 >
                                     Profile
@@ -166,7 +161,7 @@ const ClientLayout = ({ user, children }) => {
                                     </div>
                                     <button
                                         onClick={() =>
-                                            handleNavigation("/profile")
+                                            handleNavigation("/client/account")
                                         }
                                         className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors"
                                     >

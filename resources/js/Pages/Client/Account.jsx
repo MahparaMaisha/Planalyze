@@ -1,13 +1,12 @@
 import { router } from "@inertiajs/react";
 import { useEffect, useState } from "react";
-import Layout from "../../Layouts/Layout";
+import ClientLayout from "../../Layouts/ClientLayout";
 
 const Account = () => {
     const [user, setUser] = useState({});
     const [formData, setFormData] = useState({
         name: "",
         email: "",
-        bio: "",
     });
 
     const token = localStorage.getItem("token");
@@ -108,7 +107,7 @@ const Account = () => {
     };
 
     return (
-        <Layout user={user}>
+        <ClientLayout user={user}>
             <div className="max-w-2xl mx-auto p-6 bg-gray-200/10 shadow rounded-lg mt-10">
                 <h1 className="text-2xl font-bold mb-6">Account Information</h1>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -134,17 +133,6 @@ const Account = () => {
                             required
                         />
                     </div>
-                    <div>
-                        <label className="block text-gray-500">Bio</label>
-                        <input
-                            name="bio"
-                            type="text"
-                            value={formData.bio}
-                            onChange={handleChange}
-                            className="w-full border p-2 rounded mt-1"
-                            required
-                        />
-                    </div>
 
                     <div className="flex items-center justify-between mt-6">
                         <button
@@ -163,7 +151,7 @@ const Account = () => {
                     </div>
                 </form>
             </div>
-        </Layout>
+        </ClientLayout>
     );
 };
 

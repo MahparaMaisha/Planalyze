@@ -1,9 +1,18 @@
 // import { router } from "@inertiajs/react";
 // import axios from "axios";
-const Home = () => {
-    const handlefunct = async () => {
-        console.log("Nabiha");
+// useState is a hook that allows you to have state variables in functional components
+import { useState } from "react";
+const Home = ({ message }) => {
+    const [val1, setVal1] = useState(true);
+    const [users, setUsers] = useState([]);
+
+    const handlefunct = async (val) => {
+        console.log("clicked");
+        const response = await fetch("/api/momo-test");
+        const data = await response.json();
+        setUsers(data.users);
     };
+
     return (
         <>
             <button
@@ -15,8 +24,20 @@ const Home = () => {
             >
                 open modal
             </button>
+            <button
+                className="btn"
+                onClick={() => {
+                    handlefunct();
+                }}
+            >
+                Same
+            </button>
             <div>
-            
+                {users.map((user) => (
+                    <div key={user.id}>
+                        {user.id} - {user.name} - {user.email}
+                    </div>
+                ))}
             </div>
             <dialog id="my_modal_3" className="modal">
                 <div className="modal-box">

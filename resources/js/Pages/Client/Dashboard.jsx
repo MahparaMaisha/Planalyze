@@ -392,7 +392,7 @@ const Dashboard = () => {
                                     }
                                 >
                                     <div>
-                                        <div>{planner.name}</div>
+                                        <div>{planner.planner.name}</div>
                                         <div className="text-xs font-semibold opacity-60">
                                             Rating: {planner.average_rating}
                                         </div>
@@ -405,7 +405,7 @@ const Dashboard = () => {
                                             <div className="modal-box max-w-2xl">
                                                 <div className="flex justify-between">
                                                     <h3 className="font-bold text-lg mb-4">
-                                                        {planner.name}
+                                                        {planner.planner.name}
                                                     </h3>
                                                     <div className="flex gap-2">
                                                         <button

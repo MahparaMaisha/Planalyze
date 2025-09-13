@@ -81,15 +81,6 @@ const Layout = ({ user, children }) => {
                             <li>
                                 <a
                                     onClick={() =>
-                                        handleNavigation("/planner/dashboard")
-                                    }
-                                >
-                                    Dashboard
-                                </a>
-                            </li>
-                            <li>
-                                <a
-                                    onClick={() =>
                                         handleNavigation("/planner/events")
                                     }
                                 >
@@ -177,7 +168,7 @@ const Layout = ({ user, children }) => {
                                     </div>
                                     <button
                                         onClick={() =>
-                                            handleNavigation("/profile")
+                                            router.visit("/planner/account")
                                         }
                                         className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 transition-colors"
                                     >
